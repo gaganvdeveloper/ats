@@ -2,6 +2,7 @@ package ats;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -65,9 +66,32 @@ public class UserController {
 		return al;
 	}
 
+	public List<Attendance> findAllAttendencesOfADay(LocalDate date) {
+		Query q = em.createQuery("select a from Attendance a where a.date=:date");
+		q.setParameter("date", date);
+		List<Attendance> al = q.getResultList();
+		return al;
+	}
+
 	public ModelAndView openAdminDashBoard(User u, ModelAndView mv) {
 		mv.addObject("u", u);
 		mv.addObject("al", findAllAttendencesOfToday());
+		mv.setViewName("admindashboard.jsp");
+		return mv;
+	}
+	public ModelAndView openAdminDashBoardForADay(User u, ModelAndView mv, LocalDate date) {
+		
+		List<Attendance> allAttendencesOfADay = findAllAttendencesOfADay(date);
+		if(allAttendencesOfADay.size()==0) {
+			mv.addObject("u", u);
+			mv.addObject("al", new ArrayList<Attendance>() {{add(new Attendance());}});
+			mv.setViewName("admindashboard.jsp");
+			return mv;
+		}
+		
+		
+		mv.addObject("u", u);
+		mv.addObject("al", allAttendencesOfADay);
 		mv.setViewName("admindashboard.jsp");
 		return mv;
 	}
@@ -83,6 +107,12 @@ public class UserController {
 		try {
 			Object singleResult = q.getSingleResult();
 			a = (Attendance) singleResult;
+
+			mv.setViewName("employeedashboard.jsp");
+			mv.addObject("msg", "Check-In Already Done");
+			mv.addObject("u", u);
+			return mv;
+
 		} catch (Exception e) {
 			a = new Attendance();
 		}
@@ -125,7 +155,11 @@ public class UserController {
 			Object singleResult = q.getSingleResult();
 			a = (Attendance) singleResult;
 		} catch (Exception e) {
-			a = new Attendance();
+
+			mv.setViewName("employeedashboard.jsp");
+			mv.addObject("msg", "Check-In Not Done | Can't Check-Out | Please Kindly Check-In");
+			mv.addObject("u", u);
+			return mv;
 		}
 		a.setUser(u);
 		a.setCheckIn(a.getCheckIn());
@@ -133,20 +167,29 @@ public class UserController {
 				LocalTime.of(LocalTime.now().getHour(), LocalTime.now().getMinute(), LocalTime.now().getSecond()));
 		a.setDate(LocalDate.now());
 
-		int ihr = a.getCheckIn().getHour();
-		int ohr = a.getCheckOut().getHour();
+//		int ihr = a.getCheckIn().getHour();
+//		int ohr = a.getCheckOut().getHour();
+//
+//		int imins = a.getCheckIn().getMinute();
+//		int omins = a.getCheckOut().getMinute();
+//
+//		int iseconds = a.getCheckIn().getSecond();
+//		int oseconds = a.getCheckOut().getSecond();
+//
+//		int thr = Math.abs(ohr - ihr);
+//		int tmins = Math.abs(omins - imins);
+//		int tseconds = Math.abs(oseconds - iseconds);
+//
+//		a.setTotalWorkHours(LocalTime.of(thr, tmins, tseconds));
+//		
+		int wim = 60 - a.getCheckIn().getMinute();
+		int wom = a.getCheckOut().getMinute();
+		int twm = wim + wom;
+		int tch = twm / 60;
+		int tcm = twm % 60;
 
-		int imins = a.getCheckIn().getMinute();
-		int omins = a.getCheckOut().getMinute();
-
-		int iseconds = a.getCheckIn().getSecond();
-		int oseconds = a.getCheckOut().getSecond();
-
-		int thr = Math.abs(ohr - ihr);
-		int tmins = Math.abs(omins - imins);
-		int tseconds = Math.abs(oseconds - iseconds);
-
-		a.setTotalWorkHours(LocalTime.of(thr, tmins, tseconds));
+		int twh = a.getCheckOut().getHour() - a.getCheckIn().getHour() - 1;
+		a.setTotalWorkHours(LocalTime.of(tch + twh, tcm, a.getCheckIn().getSecond()));
 
 		EntityTransaction et = em.getTransaction();
 
@@ -158,6 +201,18 @@ public class UserController {
 		mv.addObject("msg", "Check-Out Successfull");
 		mv.addObject("u", u);
 		return mv;
+	}
+
+	@PostMapping("/search")
+	public ModelAndView search(@RequestParam int id ,@RequestParam String date, ModelAndView mv) {
+		
+		String[] split = date.split("-");
+		
+		
+		LocalDate ad = LocalDate.of(Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]));
+		
+		User u = em.find(User.class, id);
+		return openAdminDashBoardForADay(u, mv, ad);
 	}
 
 }

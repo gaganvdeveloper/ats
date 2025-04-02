@@ -9,6 +9,7 @@
 <body>
 	<h1>Employee DashBoard</h1>
 	<h2>${u }</h2>
+	<h4>${msg }</h4>
 	
 	<a href="checkin?id=${u.getId() }"> <button>CheckIn</button> </a>
 	<br>
