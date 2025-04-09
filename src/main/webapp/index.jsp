@@ -84,12 +84,21 @@
             background-color: #0056b3;
         }
 
-        /* Message styling */
+        /* Message styling (Popup) */
         #msg {
-            color: red;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
             font-size: 16px;
-            text-align: center;
-            margin-bottom: 20px;
+            display: none; /* Initially hidden */
+            opacity: 1;
+            z-index: 1000;
+            transition: opacity 1s ease-out;
         }
 
         /* Link styling */
@@ -136,5 +145,24 @@
         </form>
         <span class="create-account">Don't Have an Account? <a href="create.jsp">Create Account</a></span>
     </div>
+
+    <script>
+        // Check if there is a message to display
+        window.onload = function() {
+            var msgElement = document.getElementById('msg');
+            if (msgElement.innerText.trim() !== "") {
+                msgElement.style.display = 'block'; // Show the message
+                setTimeout(function() {
+                    msgElement.style.opacity = 0; // Fade the message out
+                }, 2000); // Wait 2 seconds before fading out
+
+                // Hide the message completely after fade
+                setTimeout(function() {
+                    msgElement.style.display = 'none';
+                    msgElement.style.opacity = 1; // Reset opacity for next use
+                }, 3000); // After 3 seconds (1 second fade + 2 seconds visible)
+            }
+        };
+    </script>
 </body>
 </html>

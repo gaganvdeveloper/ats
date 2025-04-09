@@ -79,17 +79,21 @@ public class UserController {
 		mv.setViewName("admindashboard.jsp");
 		return mv;
 	}
+
 	public ModelAndView openAdminDashBoardForADay(User u, ModelAndView mv, LocalDate date) {
-		
+
 		List<Attendance> allAttendencesOfADay = findAllAttendencesOfADay(date);
-		if(allAttendencesOfADay.size()==0) {
+		if (allAttendencesOfADay.size() == 0) {
 			mv.addObject("u", u);
-			mv.addObject("al", new ArrayList<Attendance>() {{add(new Attendance());}});
+			mv.addObject("al", new ArrayList<Attendance>() {
+				{
+					add(new Attendance());
+				}
+			});
 			mv.setViewName("admindashboard.jsp");
 			return mv;
 		}
-		
-		
+
 		mv.addObject("u", u);
 		mv.addObject("al", allAttendencesOfADay);
 		mv.setViewName("admindashboard.jsp");
@@ -204,13 +208,12 @@ public class UserController {
 	}
 
 	@PostMapping("/search")
-	public ModelAndView search(@RequestParam int id ,@RequestParam String date, ModelAndView mv) {
-		
+	public ModelAndView search(@RequestParam int id, @RequestParam String date, ModelAndView mv) {
+
 		String[] split = date.split("-");
-		
-		
+
 		LocalDate ad = LocalDate.of(Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]));
-		
+
 		User u = em.find(User.class, id);
 		return openAdminDashBoardForADay(u, mv, ad);
 	}

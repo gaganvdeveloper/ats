@@ -137,6 +137,8 @@
                 <div class="form-group">
                     <label for="role">Role:</label>
                     <select name="role">
+                        <option value="EMPLOYEE">-----select-----</option>
+                        <option value="ADMIN">ADMIN</option>
                         <option value="EMPLOYEE">EMPLOYEE</option>
                     </select>
                 </div>
