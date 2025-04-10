@@ -136,7 +136,7 @@
     <h2>Attendance Details of  ${al.getFirst().getDate() }</h2>
     <form action="search?id=${u.getId() }" method="post">
         <label>View Attendance By Date : </label> 
-        <input type="text" name="date" placeholder="YYYY-MM-DD"> 
+        <input type="date" name="date"> 
         <button>Search</button>
     </form>
     <br>
